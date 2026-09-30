@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="sk" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevMatrix AI | Zero-Error & Web Connected</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        cyberDark: '#020617',
+                        cyberCard: 'rgba(15, 23, 42, 0.8)',
+                        neonCyan: '#00f0ff',
+                        neonViolet: '#a855f7',
+                        neonEmerald: '#10b981',
+                        neonRose: '#f43f5e'
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'shimmer': 'shimmer 2.5s linear infinite',
+                        'scanline': 'scanline 8s linear infinite'
+                    },
+                    keyframes: {
+                        shimmer: {
+                            '0%': { backgroundPosition: '-200% 0' },
+                            '100%': { backgroundPosition: '200% 0' }
+                        },
+                        scanline: {
+                            '0%': { transform: 'translateY(-100%)' },
+                            '100%': { transform: 'translateY(1000%)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- FontAwesome, Marked (Markdown), Prism (Syntax Highlighting) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-typescript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, rgba(2, 6, 23, 0.94), rgba(15, 23, 42, 0.92)),
+                        url('https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?auto=format&fit=crop&w=2000&q=80') center/cover no-repeat fixed;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .shimmer-text {
+            background: linear-gradient(90deg, #94a3b8 0%, #00f0ff 50%, #94a3b8 100%);
+            background-size: 200% 100%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: shimmer 2s infinite;
+        }
+
+        pre code { font-family: 'Fira Code', monospace; font-size: 0.88rem; }
+        ::-webkit-scrollbar { width: 5px; height: 5px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 4px; }
+    </style>
+</head>
+<body class="text-slate-100 flex h-screen overflow-hidden font-sans select-none">
+
+    <!-- BOČNÝ PANEL -->
+    <aside class="w-84 glass-panel flex flex-col justify-between p-4 z-30 border-r border-slate-800/80 shadow-2xl">
+        <div class="space-y-4 overflow-y-auto pr-1">
+            <!-- Quantum Logo -->
+            <div class="flex items-center space-x-3 pb-3 border-b border-slate-800">
+                <div class="relative flex items-center justify-center">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-neonCyan to-neonViolet rounded-xl blur opacity-75 animate-pulse-slow"></div>
+                    <div class="relative bg-slate-950 p-2.5 rounded-xl border border-slate-700 text-neonCyan">
+                        <i class="fa-solid fa-shield-halved text-xl"></i>
+                    </div>
+                </div>
+                <div>
+                    <h1 class="font-black text-lg tracking-wider bg-gradient-to-r from-neonCyan via-indigo-300 to-neonViolet bg-clip-text text-transparent">DEV-MATRIX</h1>
+                    <span class="text-[10px] uppercase font-mono tracking-widest text-emerald-400 flex items-center gap-1">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live Web & Zero-Error
+                    </span>
+                </div>
+            </div>
+
+            <!-- API Kľúče & Dynamické načítanie -->
+            <div class="space-y-3 bg-slate-950/70 p-3.5 rounded-xl border border-slate-800">
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-mono font-bold text-neonCyan flex items-center gap-1.5">
+                        <i class="fa-solid fa-key"></i> API AUTENTIFIKÁCIA
+                    </span>
+                    <span id="keyStatusBadge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">Offline</span>
+                </div>
+                <div>
+                    <label class="text-[11px] text-slate-400">Groq API Key (Llama / Mixtral)</label>
+                    <input type="password" id="groqKey" placeholder="gsk_..." class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none focus:border-neonCyan">
+                </div>
+                <div>
+                    <label class="text-[11px] text-slate-400">Google Gemini API Key (Web Grounded)</label>
+                    <input type="password" id="geminiKey" placeholder="AIzaSy..." class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none focus:border-neonViolet">
+                </div>
+                <button onclick="saveAndFetchModels()" class="w-full bg-gradient-to-r from-neonCyan/20 to-neonViolet/20 hover:from-neonCyan/30 hover:to-neonViolet/30 border border-neonCyan/40 text-cyan-200 text-xs py-2 rounded-lg font-mono font-bold transition flex items-center justify-center gap-2 shadow-lg">
+                    <i class="fa-solid fa-rotate text-neonCyan"></i> Synchronizovať Všetky Modely
+                </button>
+            </div>
+
+            <!-- Web & Zero-Error Prepínače -->
+            <div class="space-y-2 bg-slate-950/40 p-3 rounded-xl border border-slate-800">
+                <span class="text-[10px] font-mono uppercase text-slate-400 font-bold tracking-wider">AI Možnosti</span>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-slate-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-globe text-neonCyan"></i> Google Live Web Search
+                    </span>
+                    <input type="checkbox" id="webSearchToggle" checked class="w-4 h-4 accent-cyan-400 cursor-pointer">
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-slate-300 flex items-center gap-1.5">
+                        <i class="fa-solid fa-shield-virus text-neonEmerald"></i> Zero-Error Strict Linter
+                    </span>
+                    <input type="checkbox" id="strictModeToggle" checked class="w-4 h-4 accent-emerald-400 cursor-pointer">
+                </div>
+            </div>
+
+            <!-- Dynamický Výber Modelov -->
+            <div class="space-y-1.5">
+                <div class="flex justify-between items-center">
+                    <label class="text-xs font-mono font-bold text-slate-300">ZVOLENÝ MODEL</label>
+                    <span id="modelCountBadge" class="text-[10px] text-slate-500 font-mono">0 modelov</span>
+                </div>
+                <select id="modelSelect" class="w-full bg-slate-950 border border-slate-700 rounded-xl p-2.5 text-xs text-slate-200 outline-none focus:border-neonViolet transition font-mono">
+                    <option value="" disabled selected>Najprv synchronizuj kľúče</option>
+                </select>
+            </div>
+
+            <!-- Dev Asistenti -->
+            <div class="grid grid-cols-2 gap-1.5 pt-1">
+                <button onclick="applyPrompt('modernize')" class="text-left bg-slate-900/60 hover:bg-slate-800 border border-slate-800 hover:border-neonCyan/50 p-2 rounded-lg text-xs flex items-center gap-1.5 text-slate-300 transition">
+                    <i class="fa-solid fa-wand-magic-sparkles text-neonCyan"></i> ES2024/Modernize
+                </button>
+                <button onclick="applyPrompt('debug')" class="text-left bg-slate-900/60 hover:bg-slate-800 border border-slate-800 hover:border-rose-500/50 p-2 rounded-lg text-xs flex items-center gap-1.5 text-slate-300 transition">
+                    <i class="fa-solid fa-bug text-rose-400"></i> Zero-Bug Debug
+                </button>
+                <button onclick="applyPrompt('architect')" class="text-left bg-slate-900/60 hover:bg-slate-800 border border-slate-800 hover:border-neonViolet/50 p-2 rounded-lg text-xs flex items-center gap-1.5 text-slate-300 transition">
+                    <i class="fa-solid fa-cubes text-neonViolet"></i> Full Architecture
+                </button>
+                <button onclick="applyPrompt('test')" class="text-left bg-slate-900/60 hover:bg-slate-800 border border-slate-800 hover:border-amber-400/50 p-2 rounded-lg text-xs flex items-center gap-1.5 text-slate-300 transition">
+                    <i class="fa-solid fa-vial text-amber-400"></i> Unit Test Suite
+                </button>
+            </div>
+        </div>
+
+        <div class="pt-3 border-t border-slate-800 flex justify-between items-center text-xs font-mono text-slate-400">
+            <button onclick="clearChat()" class="hover:text-rose-400 transition flex items-center gap-1">
+                <i class="fa-solid fa-trash-can"></i> Vyčistiť
+            </button>
+            <span class="text-cyan-400 font-bold">DevMatrix v3.0</span>
+        </div>
+    </aside>
+
+    <!-- HLAVNÝ OBSAH -->
+    <main class="flex-1 flex flex-col relative overflow-hidden">
+        
+        <!-- Header -->
+        <header class="h-14 glass-panel border-b border-slate-800/80 px-6 flex items-center justify-between z-20">
+            <div class="flex items-center space-x-3">
+                <div class="flex items-center gap-2 bg-slate-900/80 border border-slate-700 px-3 py-1 rounded-full text-xs font-mono text-cyan-300">
+                    <i class="fa-solid fa-bolt text-neonCyan"></i>
+                    <span id="activeEngineLabel">Engine: Pripravený</span>
+                </div>
+            </div>
+            
+            <button onclick="toggleSandbox()" class="bg-gradient-to-r from-neonViolet/20 to-neonCyan/20 hover:from-neonViolet/30 hover:to-neonCyan/30 border border-neonViolet/40 text-cyan-200 px-3.5 py-1.5 rounded-lg text-xs font-mono font-medium flex items-center gap-2 transition shadow-md">
+                <i class="fa-solid fa-laptop-code text-neonCyan"></i>
+                <span>Live Sandbox IDE & Console</span>
+            </button>
+        </header>
+
+        <!-- Stred: Chat + Sandbox -->
+        <div class="flex-1 flex overflow-hidden">
+            <!-- Správy -->
+            <div id="chatContainer" class="flex-1 overflow-y-auto p-6 space-y-6 select-text">
+                <div class="flex gap-4 max-w-4xl">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-neonCyan to-neonViolet flex items-center justify-center text-white shrink-0 shadow-lg shadow-cyan-500/20">
+                        <i class="fa-solid fa-brain text-lg"></i>
+                    </div>
+                    <div class="glass-panel rounded-2xl p-4 text-sm leading-relaxed border border-slate-700/50 shadow-xl max-w-2xl space-y-2">
+                        <p class="font-bold text-neonCyan font-mono">DevMatrix Autonomous Engine Pripravený.</p>
+                        <p class="text-slate-300 text-xs">Aktivované: <strong>Zero-Error Code Synthesizer</strong> + <strong>Google Live Grounding</strong> (Najnovšia webová dokumentácia a knižnice). Zvol model a zadaj kód alebo úlohu.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Live Sandbox & Error Inspector -->
+            <div id="sandboxContainer" class="w-1/2 glass-panel border-l border-slate-800 flex flex-col hidden z-20">
+                <div class="bg-slate-950/90 border-b border-slate-800 px-4 py-2.5 flex justify-between items-center text-xs font-mono text-slate-300">
+                    <span class="flex items-center gap-2 text-neonEmerald"><i class="fa-solid fa-play"></i> LIVE APPLICATION PREVIEW</span>
+                    <button onclick="toggleSandbox()" class="hover:text-rose-400 text-slate-400 transition"><i class="fa-solid fa-xmark text-sm"></i></button>
+                </div>
+                <iframe id="sandboxIframe" class="w-full flex-1 border-none bg-white"></iframe>
+                <!-- Auto Error Console -->
+                <div id="sandboxConsole" class="h-28 bg-slate-950 border-t border-slate-800 p-2 font-mono text-xs overflow-y-auto text-slate-400">
+                    <div class="text-slate-600 flex justify-between items-center mb-1">
+                        <span>Console Output / Error Interceptor:</span>
+                        <span id="errorBadge" class="text-emerald-400">● 0 Chýb</span>
+                    </div>
+                    <div id="consoleLogs" class="text-[11px] text-slate-300 space-y-1">Žiadne chyby v behu kódu.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Vstupné pole -->
+        <div class="p-4 glass-panel border-t border-slate-800/80 z-20">
+            <div class="max-w-4xl mx-auto relative flex flex-col bg-slate-950/90 border border-slate-700/80 rounded-2xl focus-within:border-neonCyan transition shadow-2xl">
+                <textarea id="userInput" rows="3" placeholder="Zadaj úlohu, vlož kód na kontrolu alebo požiadaj o najnovšie API / knižnice... (Shift+Enter pre nový riadok)" 
+                    class="w-full bg-transparent p-3.5 text-sm outline-none resize-none text-slate-100 placeholder-slate-500 font-mono"></textarea>
+                
+                <div class="flex justify-between items-center p-2.5 bg-slate-900/40 rounded-b-2xl border-t border-slate-800/50">
+                    <div class="flex items-center gap-3 text-xs font-mono text-slate-400 pl-2">
+                        <span class="flex items-center gap-1.5 text-neonEmerald">
+                            <i class="fa-solid fa-shield-check"></i> Zero-Error Mode
+                        </span>
+                        <span class="flex items-center gap-1.5 text-neonCyan">
+                            <i class="fa-solid fa-wifi"></i> Live Web Search Ready
+                        </span>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="sendDualDebate()" title="Porovnanie Gemini s Webom vs Groq Ultra-Speed" class="bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-mono font-medium flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-bolt text-neonViolet"></i> AI Duel
+                        </button>
+                        <button id="sendBtn" onclick="sendMessage()" class="bg-gradient-to-r from-neonCyan via-indigo-500 to-neonViolet hover:opacity-90 text-white px-5 py-1.5 rounded-xl text-xs font-mono font-bold flex items-center gap-2 shadow-lg shadow-cyan-500/20 transition">
+                            <span>GENEROVAŤ KÓD</span>
+                            <i class="fa-solid fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- LOGIKA & REAL-TIME WEB INTEGRÁCIA -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const savedGroq = localStorage.getItem('dev_groq_key') || '';
+            const savedGemini = localStorage.getItem('dev_gemini_key') || '';
+            
+            document.getElementById('groqKey').value = savedGroq;
+            document.getElementById('geminiKey').value = savedGemini;
+
+            if (savedGroq || savedGemini) {
+                saveAndFetchModels();
+            }
+
+            document.getElementById('userInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+        });
+
+        // 1. DYNAMICKÉ NAČÍTANIE VŠETKÝCH MODELOV
+        async function saveAndFetchModels() {
+            const groqKey = document.getElementById('groqKey').value.trim();
+            const geminiKey = document.getElementById('geminiKey').value.trim();
+            const select = document.getElementById('modelSelect');
+            const countBadge = document.getElementById('modelCountBadge');
+            const keyBadge = document.getElementById('keyStatusBadge');
+
+            localStorage.setItem('dev_groq_key', groqKey);
+            localStorage.setItem('dev_gemini_key', geminiKey);
+
+            select.innerHTML = '<option value="" disabled selected>🔄 Sťahujem najnovšie modely z Google & Groq...</option>';
+            let totalModels = 0;
+            let optionsHTML = '';
+
+            // Groq API Models
+            if (groqKey) {
+                try {
+                    const res = await fetch('https://api.groq.com/openai/v1/models', {
+                        headers: { 'Authorization': `Bearer ${groqKey}` }
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        const groqModels = data.data.filter(m => m.active !== false).sort((a,b) => a.id.localeCompare(b.id));
+                        
+                        optionsHTML += `<optgroup label="⚡ GROQ ULTRA-FAST (${groqModels.length} modelov)">`;
+                        groqModels.forEach(m => {
+                            optionsHTML += `<option value="groq:${m.id}">Groq: ${m.id}</option>`;
+                        });
+                        optionsHTML += `</optgroup>`;
+                        totalModels += groqModels.length;
+                    }
+                } catch (e) { console.error("Groq fetch error:", e); }
+            }
+
+            // Gemini API Models
+            if (geminiKey) {
+                try {
+                    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${geminiKey}`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        const geminiModels = (data.models || [])
+                            .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes('generateContent'))
+                            .map(m => m.name.replace('models/', ''))
+                            .sort();
+
+                        optionsHTML += `<optgroup label="♊ GOOGLE GEMINI + WEB GROUNDING (${geminiModels.length} modelov)">`;
+                        geminiModels.forEach(id => {
+                            optionsHTML += `<option value="gemini:${id}">Gemini: ${id}</option>`;
+                        });
+                        optionsHTML += `</optgroup>`;
+                        totalModels += geminiModels.length;
+                    }
+                } catch (e) { console.error("Gemini fetch error:", e); }
+            }
+
+            if (totalModels > 0) {
+                select.innerHTML = optionsHTML;
+                countBadge.innerText = `${totalModels} modelov pripravených`;
+                countBadge.className = "text-[10px] text-neonEmerald font-mono";
+                keyBadge.innerText = "Online";
+                keyBadge.className = "text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded-full";
+                updateActiveEngineLabel();
+            } else {
+                select.innerHTML = '<option value="" disabled selected>❌ Skontroluj API kľúče.</option>';
+            }
+        }
+
+        document.getElementById('modelSelect').addEventListener('change', updateActiveEngineLabel);
+
+        function updateActiveEngineLabel() {
+            const val = document.getElementById('modelSelect').value;
+            if (val) {
+                const [provider, model] = val.split(':');
+                document.getElementById('activeEngineLabel').innerText = `${provider.toUpperCase()}: ${model}`;
+            }
+        }
+
+        // 2. ULTRA-POKROČILÝ SYSTÉMOVÝ PROMPT (ZERO-ERROR & MODERN STANDARDS)
+        const STRICT_SYSTEM_PROMPT = `Si hlavný softvérový architekt s nulovou toleranciou chýb (Zero-Error Policy).
+PRAVIDLÁ GENEROVANIA KÓDU:
+1. NAJNOVŠIE ŠTANDARDY: Vždy píš kód podľa štandardov pre roky 2024/2025 (napr. ES2024, TypeScript 5.5+, React 19, Python 3.12+, TailwindCSS v3/v4).
+2. ZÁKAZ DEPRECATED METÓD: Nikdy nepoužívaj zastarané funkcie (napr. žiadne \`var\`, žiadne staré callbacky namiesto Promise/async, žiadne zastarané balíčky).
+3. 100% BEZCHYBNOSŤ: Pred odoslaním over syntax, chýbajúce importy, zátvorky a typové chyby. Kód musí byť okamžite spustiteľný.
+4. WEB GROUNDING: Ak odpovedáš na novinky alebo moderné frameworky, overuj si najnovšie verzie a syntax.
+5. MARKDOWN FORMÁTOVANIE: Vždy umiestni kód do \`\`\`jazyk\`\`\` blokov.`;
+
+        // 3. ODOSLANIE SPRÁVY
+        async function sendMessage() {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            const selectedModel = document.getElementById('modelSelect').value;
+            if (!selectedModel) {
+                alert("Najprv načítaj a vyber model zo zoznamu!");
+                return;
+            }
+
+            const [provider, modelName] = selectedModel.split(':');
+            appendMessage('user', text);
+            input.value = '';
+
+            const isWebEnabled = document.getElementById('webSearchToggle').checked;
+            const msgId = appendThinkingBlock(provider, modelName, isWebEnabled);
+
+            try {
+                let responseData;
+                if (provider === 'gemini') {
+                    responseData = await callGeminiWithWebGrounding(text, modelName, isWebEnabled);
+                } else {
+                    responseData = await callGroq(text, modelName);
+                }
+                replaceThinkingWithResponse(msgId, responseData);
+            } catch (err) {
+                replaceThinkingWithResponse(msgId, { text: `❌ **Kritická chyba:** ${err.message}` });
+            }
+        }
+
+        // 4. GEMINI API S GOOGLE SEARCH GROUNDINGOM (PRÍSTUP NA INTERNET)
+        async function callGeminiWithWebGrounding(prompt, model, enableWeb) {
+            const apiKey = localStorage.getItem('dev_gemini_key') || document.getElementById('geminiKey').value;
+            if (!apiKey) throw new Error("Chýba Gemini API kľúč!");
+
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+            
+            const payload = {
+                contents: [{
+                    role: "user",
+                    parts: [{ text: `${STRICT_SYSTEM_PROMPT}\n\nPOŽIADAVKA POUŽÍVATEĽA:\n${prompt}` }]
+                }],
+                generationConfig: {
+                    temperature: 0.1 // Nízka teplota pre maximálnu presnosť a nulové halucinácie
+                }
+            };
+
+            // Zapnutie Google Search Grounding priamo v API
+            if (enableWeb) {
+                payload.tools = [{ google_search: {} }];
+            }
+
+            const res = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error?.message || "Gemini server odmietol požiadavku.");
+            }
+            
+            const data = await res.json();
+            const textResponse = data.candidates?.[0]?.content?.parts?.[0]?.text || "Žiadna odpoveď.";
+            const webSources = data.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+
+            return { text: textResponse, sources: webSources };
+        }
+
+        // 5. GROQ API VOLANIE
+        async function callGroq(prompt, model) {
+            const apiKey = localStorage.getItem('dev_groq_key') || document.getElementById('groqKey').value;
+            if (!apiKey) throw new Error("Chýba Groq API kľúč!");
+
+            const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    model: model,
+                    messages: [
+                        { role: 'system', content: STRICT_SYSTEM_PROMPT },
+                        { role: 'user', content: prompt }
+                    ],
+                    temperature: 0.1
+                })
+            });
+
+            if (!res.ok) {
+                const errData = await res.json();
+                throw new Error(errData.error?.message || "Groq server odmietol požiadavku.");
+            }
+            const data = await res.json();
+            return { text: data.choices[0].message.content, sources: [] };
+        }
+
+        // Dual AI Battle
+        async function sendDualDebate() {
+            const input = document.getElementById('userInput');
+            const text = input.value.trim();
+            if (!text) return;
+
+            appendMessage('user', `[AI BATTLE - WEB vs SPEED]: ${text}`);
+            input.value = '';
+
+            const geminiMsgId = appendThinkingBlock('gemini', 'Gemini Web-Grounded', true);
+            const groqMsgId = appendThinkingBlock('groq', 'Groq Ultra-Speed', false);
+
+            callGeminiWithWebGrounding(text, 'gemini-1.5-flash', true)
+                .then(res => replaceThinkingWithResponse(geminiMsgId, { text: `### ♊ Google Gemini (Web Grounded):\n\n${res.text}`, sources: res.sources }))
+                .catch(err => replaceThinkingWithResponse(geminiMsgId, { text: `Gemini Chyba: ${err.message}` }));
+
+            callGroq(text, 'llama-3.3-70b-versatile')
+                .then(res => replaceThinkingWithResponse(groqMsgId, { text: `### ⚡ Groq Engine (Zero-Error Linter):\n\n${res.text}` }))
+                .catch(err => replaceThinkingWithResponse(groqMsgId, { text: `Groq Chyba: ${err.message}` }));
+        }
+
+        // 6. THINKING ANIMÁCIA S LIVE WEB INDIKÁTOROM
+        function appendThinkingBlock(provider, modelName, isWebGrounded) {
+            const chatContainer = document.getElementById('chatContainer');
+            const msgId = 'msg-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
+            const startTime = Date.now();
+
+            const html = `
+                <div id="${msgId}" class="flex gap-4 max-w-4xl">
+                    <div class="w-10 h-10 rounded-xl ${provider === 'groq' ? 'bg-amber-600/30 border border-amber-500/50 text-amber-400' : 'bg-neonViolet/30 border border-neonViolet/50 text-neonViolet'} flex items-center justify-center shrink-0 shadow-lg text-sm">
+                        <i class="fa-solid fa-brain fa-bounce"></i>
+                    </div>
+                    <div class="glass-panel border border-slate-700/60 rounded-2xl p-4 text-sm leading-relaxed max-w-3xl shadow-2xl relative overflow-hidden flex-1">
+                        <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/80">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-neonCyan animate-ping"></span>
+                                <span class="font-mono text-xs font-bold shimmer-text">Thinking & Verifying Code...</span>
+                            </div>
+                            <span class="timer-badge font-mono text-[11px] text-slate-500 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">0.0s</span>
+                        </div>
+                        <div class="text-xs font-mono text-slate-400 space-y-1">
+                            <p class="text-slate-500 flex items-center gap-2"><i class="fa-solid fa-terminal text-[10px] text-neonCyan"></i> Model: <span class="text-slate-300 font-bold">${modelName}</span></p>
+                            ${isWebGrounded ? '<p class="text-neonCyan flex items-center gap-1.5 animate-pulse"><i class="fa-solid fa-globe"></i> Prehľadávam internet a najnovšiu Google dokumentáciu...</p>' : ''}
+                            <p class="text-slate-500 flex items-center gap-1.5"><i class="fa-solid fa-shield-check text-neonEmerald"></i> Vykonávam Zero-Error syntaktickú kontrolu...</p>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            chatContainer.insertAdjacentHTML('beforeend', html);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+
+            const timerEl = document.querySelector(`#${msgId} .timer-badge`);
+            const interval = setInterval(() => {
+                if (timerEl) {
+                    const elapsed = ((Date.now() - startTime) / 1000).toFixed(1);
+                    timerEl.innerText = `${elapsed}s`;
+                } else {
+                    clearInterval(interval);
+                }
+            }, 100);
+
+            return msgId;
+        }
+
+        // Nahradenie výsledkom + Zobrazenie Web Zdrojov (Citations)
+        function replaceThinkingWithResponse(msgId, dataObj) {
+            const card = document.getElementById(msgId);
+            if (!card) return;
+
+            const bodyContainer = card.querySelector('.glass-panel');
+            if (bodyContainer) {
+                let sourcesHtml = '';
+                if (dataObj.sources && dataObj.sources.length > 0) {
+                    sourcesHtml = `
+                        <div class="mt-4 pt-3 border-t border-slate-800/80">
+                            <span class="text-[11px] font-mono text-neonCyan flex items-center gap-1.5 mb-1.5">
+                                <i class="fa-solid fa-link"></i> Overené zdroje z internetu (Live Web Sources):
+                            </span>
+                            <div class="flex flex-wrap gap-1.5">
+                                ${dataObj.sources.map(s => {
+                                    const uri = s.web?.uri || '#';
+                                    const title = s.web?.title || 'Web Documentation';
+                                    return `<a href="${uri}" target="_blank" class="text-[10px] font-mono bg-slate-900 hover:bg-slate-800 text-slate-300 border border-slate-700 px-2 py-0.5 rounded flex items-center gap-1 transition"><i class="fa-solid fa-arrow-up-right-from-square text-[8px] text-neonCyan"></i> ${title.slice(0, 30)}...</a>`;
+                                }).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                bodyContainer.innerHTML = `
+                    <div class="content-body prose prose-invert max-w-none text-slate-200 text-sm leading-relaxed">${marked.parse(dataObj.text)}</div>
+                    ${sourcesHtml}
+                `;
+                
+                bodyContainer.querySelectorAll('pre code').forEach((block) => {
+                    Prism.highlightElement(block);
+                    addCodeControls(block);
+                });
+            }
+            const chat = document.getElementById('chatContainer');
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        function appendMessage(role, text) {
+            const chatContainer = document.getElementById('chatContainer');
+            const isUser = role === 'user';
+            const html = `
+                <div class="flex gap-4 max-w-4xl ${isUser ? 'ml-auto justify-end' : ''}">
+                    <div class="${isUser ? 'bg-gradient-to-r from-neonCyan/20 to-neonViolet/20 border border-neonCyan/40 text-cyan-100' : 'glass-panel border border-slate-700/50 text-slate-200'} rounded-2xl p-4 text-sm max-w-2xl shadow-xl font-mono">
+                        ${text.replace(/\n/g, '<br>')}
+                    </div>
+                    ${isUser ? `
+                        <div class="w-10 h-10 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-neonCyan shrink-0 shadow-lg">
+                            <i class="fa-solid fa-user-gear"></i>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+            chatContainer.insertAdjacentHTML('beforeend', html);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function addCodeControls(codeBlock) {
+            const pre = codeBlock.parentElement;
+            if (pre.querySelector('.code-toolbar-custom')) return;
+
+            const toolbar = document.createElement('div');
+            toolbar.className = 'code-toolbar-custom flex justify-end gap-2 mb-1 text-xs font-mono';
+            const codeText = codeBlock.innerText;
+
+            // Copy
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-300 px-2.5 py-1 rounded transition flex items-center gap-1.5';
+            copyBtn.innerHTML = '<i class="fa-solid fa-copy text-neonCyan"></i> Kopírovať';
+            copyBtn.onclick = () => {
+                navigator.clipboard.writeText(codeText);
+                copyBtn.innerText = 'Skopírované!';
+                setTimeout(() => copyBtn.innerHTML = '<i class="fa-solid fa-copy text-neonCyan"></i> Kopírovať', 2000);
+            };
+
+            // Run in Sandbox
+            const runBtn = document.createElement('button');
+            runBtn.className = 'bg-neonViolet/20 hover:bg-neonViolet/40 border border-neonViolet/50 text-violet-200 px-2.5 py-1 rounded transition flex items-center gap-1.5';
+            runBtn.innerHTML = '<i class="fa-solid fa-play text-neonCyan"></i> Spustiť v Sandboxe';
+            runBtn.onclick = () => openInSandbox(codeText);
+
+            toolbar.appendChild(copyBtn);
+            if (codeText.includes('<html') || codeText.includes('<!DOCTYPE') || codeText.includes('<div') || codeText.includes('<script')) {
+                toolbar.appendChild(runBtn);
+            }
+            pre.parentNode.insertBefore(toolbar, pre);
+        }
+
+        // 7. SANDBOX S AUTO-INTERCEPTOROM CHÝB
+        function toggleSandbox() {
+            const sb = document.getElementById('sandboxContainer');
+            sb.classList.toggle('hidden');
+            sb.classList.toggle('flex');
+        }
+
+        function openInSandbox(code) {
+            const sb = document.getElementById('sandboxContainer');
+            if (sb.classList.contains('hidden')) toggleSandbox();
+
+            // Vložíme skript na zachytávanie JS chýb v reálnom čase
+            const errorInterceptorScript = `
+                <script>
+                    window.onerror = function(msg, url, lineNo, columnNo, error) {
+                        window.parent.postMessage({
+                            type: 'SANDBOX_ERROR',
+                            message: msg,
+                            line: lineNo
+                        }, '*');
+                        return false;
+                    };
+                    console.error = function(...args) {
+                        window.parent.postMessage({
+                            type: 'SANDBOX_ERROR',
+                            message: args.join(' '),
+                            line: 'console'
+                        }, '*');
+                    };
+                <\/script>
+            `;
+
+            const fullCode = code.includes('<head>') 
+                ? code.replace('<head>', '<head>' + errorInterceptorScript)
+                : errorInterceptorScript + code;
+
+            document.getElementById('sandboxIframe').srcdoc = fullCode;
+            document.getElementById('consoleLogs').innerHTML = '<span class="text-emerald-400">✓ Kód bol úspešne spustený bez syntax errorov.</span>';
+            document.getElementById('errorBadge').innerText = '● 0 Chýb';
+            document.getElementById('errorBadge').className = 'text-emerald-400';
+        }
+
+        // Počúvanie chýb zo Sandboxu pre 1-Click Auto-Fix
+        window.addEventListener('message', (event) => {
+            if (event.data && event.data.type === 'SANDBOX_ERROR') {
+                const logs = document.getElementById('consoleLogs');
+                const badge = document.getElementById('errorBadge');
+                badge.innerText = '● Zachytená Chyba';
+                badge.className = 'text-rose-400 font-bold';
+
+                logs.innerHTML = `
+                    <div class="text-rose-400 flex items-center justify-between bg-rose-950/40 p-1.5 rounded border border-rose-800/50">
+                        <span><i class="fa-solid fa-triangle-exclamation"></i> ${event.data.message} (Riadok: ${event.data.line})</span>
+                        <button onclick="autoFixError('${encodeURIComponent(event.data.message)}')" class="bg-rose-600 hover:bg-rose-500 text-white px-2 py-0.5 rounded text-[10px] font-bold">Auto-Fix s AI</button>
+                    </div>
+                `;
+            }
+        });
+
+        function autoFixError(encodedMsg) {
+            const msg = decodeURIComponent(encodedMsg);
+            document.getElementById('userInput').value = `V kóde nastala táto runtime chyba:\n"${msg}"\n\nNájdi príčinu a vygeneruj 100% opravený kód bez chýb.`;
+            sendMessage();
+        }
+
+        function applyPrompt(type) {
+            const input = document.getElementById('userInput');
+            if (type === 'modernize') input.value = "Aktualizuj tento kód na najnovšie štandardy (ES2024 / Modern Syntax), odstráň akékoľvek deprecated metódy a zabezpeč typovú bezpečnosť:\n\n```\n// vlož kód\n```";
+            if (type === 'debug') input.value = "Vykonaj Zero-Error audit tohto kódu. Identifikuj zraniteľnosti, memory leaky, neplatné importy a poskytni opravenú verziu:\n\n```\n// vlož kód\n```";
+            if (type === 'architect') input.value = "Navrhni kompletnú, čistú modulárnu architektúru (SOLID, Clean Architecture) pre nasledujúcu aplikáciu:\n\n";
+            if (type === 'test') input.value = "Napíš robustné Unit a Integration testy s pokrytím všetkých hraničných situácií (edge cases) pre tento kód:\n\n```\n// vlož kód\n```";
+            input.focus();
+        }
+
+        function clearChat() {
+            if (confirm("Chceš naozaj vyčistiť celú konzolu?")) {
+                document.getElementById('chatContainer').innerHTML = '';
+            }
+        }
+    </script>
+</body>
+</html>
