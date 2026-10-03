@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DevMatrix AI | GAMEPLA631 Corporation (Qwen Powered)</title>
+    <title>DevMatrix AI | GAMEPLA631 Corporation (Auto-Engine)</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -34,7 +34,7 @@
             }
         }
     </script>
-    <!-- FontAwesome, Marked (Markdown), Prism (Syntax Highlighting) -->
+    <!-- FontAwesome, Marked, Prism -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
@@ -102,7 +102,7 @@
                     <span id="keyStatusBadge" class="text-[10px] bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full">Offline</span>
                 </div>
                 <div>
-                    <label class="text-[11px] text-slate-400 font-bold text-gameplaGold">Groq API Key (Pohon pre Qwen/CQL)</label>
+                    <label class="text-[11px] text-slate-400 font-bold text-gameplaGold">Groq API Key (Pohon pre CQL modely)</label>
                     <input type="password" id="groqKey" placeholder="gsk_..." class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none focus:border-neonCyan">
                 </div>
                 <div>
@@ -110,7 +110,7 @@
                     <input type="password" id="geminiKey" placeholder="AIzaSy..." class="w-full mt-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-200 outline-none focus:border-neonViolet">
                 </div>
                 <button onclick="saveAndFetchModels()" class="w-full bg-gradient-to-r from-gameplaGold/20 via-neonCyan/20 to-neonViolet/20 hover:from-gameplaGold/30 hover:to-neonViolet/30 border border-gameplaGold/40 text-amber-200 text-xs py-2 rounded-lg font-mono font-bold transition flex items-center justify-center gap-2 shadow-lg">
-                    <i class="fa-solid fa-rotate text-gameplaGold"></i> Aktivovať Qwen Enginy
+                    <i class="fa-solid fa-rotate text-gameplaGold"></i> Synchronizovať a Spustiť
                 </button>
             </div>
 
@@ -125,7 +125,7 @@
                 </div>
                 <div class="flex items-center justify-between">
                     <span class="text-xs text-slate-300 flex items-center gap-1.5">
-                        <i class="fa-solid fa-check-double text-neonEmerald"></i> 100% Complete Code Lock
+                        <i class="fa-solid fa-check-double text-neonEmerald"></i> 100% Complete Code
                     </span>
                     <input type="checkbox" id="completeCodeToggle" checked class="w-4 h-4 accent-emerald-400 cursor-pointer">
                 </div>
@@ -193,8 +193,8 @@
                         <i class="fa-solid fa-gamepad text-lg"></i>
                     </div>
                     <div class="glass-panel rounded-2xl p-4 text-sm leading-relaxed border border-slate-700/50 shadow-xl max-w-2xl space-y-2">
-                        <p class="font-bold text-gameplaGold font-mono">GAMEPLA631 Qwen Neural Engine Pripravený.</p>
-                        <p class="text-slate-300 text-xs">Všetkých 18 modelov série **CQL-3.8** beží cez **Groq Qwen Engine** s garanciou úplného dopísania kódu (Zero-Truncation) a nulových chýb.</p>
+                        <p class="font-bold text-gameplaGold font-mono">GAMEPLA631 Neural Engine Pripravený.</p>
+                        <p class="text-slate-300 text-xs">Aktivovaných 18 modelov série **CQL-3.8**. Systém píše kompletné bezchybné kódy, tvorí Roblox mechaniky a dokáže prirodzene komunikovať.</p>
                     </div>
                 </div>
             </div>
@@ -225,10 +225,10 @@
                 <div class="flex justify-between items-center p-2.5 bg-slate-900/40 rounded-b-2xl border-t border-slate-800/50">
                     <div class="flex items-center gap-3 text-xs font-mono text-slate-400 pl-2">
                         <span class="flex items-center gap-1.5 text-gameplaGold">
-                            <i class="fa-solid fa-microchip"></i> Qwen 3.8 Core
+                            <i class="fa-solid fa-microchip"></i> CQL Neural Core
                         </span>
                         <span class="flex items-center gap-1.5 text-neonEmerald">
-                            <i class="fa-solid fa-shield-check"></i> Full Code Guarantee
+                            <i class="fa-solid fa-shield-check"></i> Complete Code Active
                         </span>
                     </div>
                     <div class="flex gap-2">
@@ -245,7 +245,7 @@
         </div>
     </main>
 
-    <!-- LOGIKA S VYRIEŠENÝM PREPOJENÍM NA GROQ QWEN -->
+    <!-- LOGIKA S DYNAMICKÝM AUTO-DETECTION ENGINE -->
     <script>
         // 18 MODELOV GAMEPLA631 CORPORATION
         const GAMEPLA_MODELS = [
@@ -284,8 +284,9 @@ TVOJA IDENTITA A PRAVIDLÁ (STRIKTNÉ):
    - Priateľský, inteligentný a prirodzený rozhovor na akúkoľvek tému v slovenčine aj iných jazykoch.
 5. FORMÁTOVANIE: Všetok kód vždy vkladaj do \`\`\`jazyk\`\`\` blokov.`;
 
-        // Uloženie posledného funkčného Gemini modelu pre bezpečný fallback
-        window.activeGeminiFallbackModel = 'gemini-2.0-flash';
+        // Globálne zoznamy aktívnych modelov zistené priamo zo serverov
+        window.activeGroqModelsList = [];
+        window.activeGeminiModelsList = [];
 
         document.addEventListener("DOMContentLoaded", () => {
             const savedGroq = localStorage.getItem('dev_groq_key') || '';
@@ -304,7 +305,7 @@ TVOJA IDENTITA A PRAVIDLÁ (STRIKTNÉ):
             });
         });
 
-        // 1. ZOSTAVENIE ZOZNAMU MODELOV
+        // 1. ZOSTAVENIE ZOZNAMU MODELOV S DYNAMICKÝM OVERENÍM
         async function saveAndFetchModels() {
             const groqKey = document.getElementById('groqKey').value.trim();
             const geminiKey = document.getElementById('geminiKey').value.trim();
@@ -315,17 +316,20 @@ TVOJA IDENTITA A PRAVIDLÁ (STRIKTNÉ):
             localStorage.setItem('dev_groq_key', groqKey);
             localStorage.setItem('dev_gemini_key', geminiKey);
 
+            window.activeGroqModelsList = [];
+            window.activeGeminiModelsList = [];
+
             let optionsHTML = '';
 
             // A) 18 MODELOV GAMEPLA631 CORPORATION
-            optionsHTML += `<optgroup label="🎮 GAMEPLA631 CORPORATION (Qwen Powered - 18 modelov)">`;
+            optionsHTML += `<optgroup label="🎮 GAMEPLA631 CORPORATION (18 oficiálnych modelov)">`;
             GAMEPLA_MODELS.forEach((m, idx) => {
                 const isSelected = idx === 0 ? 'selected' : '';
                 optionsHTML += `<option value="gamepla:${m.id}" ${isSelected}>🎮 ${m.name}</option>`;
             });
             optionsHTML += `</optgroup>`;
 
-            // B) Groq Modely
+            // B) Groq Modely (Dynamicky načítané)
             if (groqKey) {
                 try {
                     const res = await fetch('https://api.groq.com/openai/v1/models', {
@@ -333,14 +337,17 @@ TVOJA IDENTITA A PRAVIDLÁ (STRIKTNÉ):
                     });
                     if (res.ok) {
                         const data = await res.json();
-                        const groqModels = data.data
+                        const groqModels = (data.data || [])
                             .filter(m => m.active !== false && !m.id.includes('whisper') && !m.id.includes('vision'))
-                            .sort((a,b) => a.id.localeCompare(b.id));
+                            .map(m => m.id)
+                            .sort();
                         
+                        window.activeGroqModelsList = groqModels;
+
                         if (groqModels.length > 0) {
-                            optionsHTML += `<optgroup label="⚡ PRIAME GROQ ENGINY (${groqModels.length})">`;
+                            optionsHTML += `<optgroup label="⚡ ALTERNATÍVNE GROQ ENGINY (${groqModels.length})">`;
                             groqModels.forEach(m => {
-                                optionsHTML += `<option value="groq:${m.id}">Groq: ${m.id}</option>`;
+                                optionsHTML += `<option value="groq:${m}">Groq: ${m}</option>`;
                             });
                             optionsHTML += `</optgroup>`;
                         }
@@ -348,14 +355,13 @@ TVOJA IDENTITA A PRAVIDLÁ (STRIKTNÉ):
                 } catch (e) { console.error("Groq fetch error:", e); }
             }
 
-            // C) Google Gemini Flash Modely (S dynamickým overením)
+            // C) Gemini Modely (Dynamicky overené)
             if (geminiKey) {
-                let geminiModels = [];
                 try {
                     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models?key=${geminiKey}`);
                     if (res.ok) {
                         const data = await res.json();
-                        geminiModels = (data.models || [])
+                        const geminiModels = (data.models || [])
                             .filter(m => {
                                 const cleanId = (m.name || '').replace(/^models\//, '').toLowerCase();
                                 const isFlash = cleanId.includes('flash');
@@ -364,28 +370,29 @@ TVOJA IDENTITA A PRAVIDLÁ (STRIKTNÉ):
                             })
                             .map(m => m.name.replace(/^models\//, ''))
                             .sort();
+
+                        window.activeGeminiModelsList = geminiModels;
+
+                        if (geminiModels.length > 0) {
+                            optionsHTML += `<optgroup label="♊ ALTERNATÍVNE GEMINI FLASH ENGINY (${geminiModels.length})">`;
+                            geminiModels.forEach(id => {
+                                optionsHTML += `<option value="gemini:${id}">Gemini Flash: ${id}</option>`;
+                            });
+                            optionsHTML += `</optgroup>`;
+                        }
                     }
                 } catch (e) { console.error("Gemini fetch error:", e); }
-
-                if (geminiModels.length > 0) {
-                    window.activeGeminiFallbackModel = geminiModels[0];
-                    optionsHTML += `<optgroup label="♊ ZÁLOŽNÉ GEMINI FLASH ENGINY (${geminiModels.length})">`;
-                    geminiModels.forEach(id => {
-                        optionsHTML += `<option value="gemini:${id}">Gemini Flash: ${id}</option>`;
-                    });
-                    optionsHTML += `</optgroup>`;
-                }
             }
 
             select.innerHTML = optionsHTML;
             select.value = "gamepla:cql-3.8-flash";
 
             countBadge.innerText = `${GAMEPLA_MODELS.length} modelov GAMEPLA631`;
-            if (groqKey) {
-                keyBadge.innerText = "Online (Qwen)";
+            if (groqKey || geminiKey) {
+                keyBadge.innerText = "Online";
                 keyBadge.className = "text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-500/40 px-2 py-0.5 rounded-full";
             } else {
-                keyBadge.innerText = "Zadaj Groq Key";
+                keyBadge.innerText = "Zadaj kľúč";
                 keyBadge.className = "text-[10px] bg-amber-950 text-amber-400 border border-amber-500/40 px-2 py-0.5 rounded-full";
             }
             updateActiveEngineLabel();
@@ -433,7 +440,6 @@ TVOJA IDENTITA A PRAVIDLÁ (STRIKTNÉ):
             try {
                 let responseData;
                 if (selectedModel.startsWith('gamepla:')) {
-                    // Priame volanie Groq Qwen pre modely GAMEPLA631
                     responseData = await callGameplaModel(text, isWebEnabled);
                 } else if (selectedModel.startsWith('gemini:')) {
                     responseData = await callGeminiDirect(text, selectedModel.replace('gemini:', ''), isWebEnabled);
@@ -446,50 +452,72 @@ TVOJA IDENTITA A PRAVIDLÁ (STRIKTNÉ):
             }
         }
 
-        // 3. SPRACOVANIE MODELOV GAMEPLA631 (VÝHRADNE GROQ QWEN ENGINE)
+        // 3. INTELIGENTNÝ POHON PRE GAMEPLA631 (QWEN + AUTO-FAILOVER)
         async function callGameplaModel(prompt, enableWeb) {
-            const groqKey = localStorage.getItem('dev_groq_key') || document.getElementById('groqKey').value;
-            const geminiKey = localStorage.getItem('dev_gemini_key') || document.getElementById('geminiKey').value;
+            const groqKey = localStorage.getItem('dev_groq_key') || document.getElementById('groqKey').value.trim();
+            const geminiKey = localStorage.getItem('dev_gemini_key') || document.getElementById('geminiKey').value.trim();
 
             if (!groqKey && !geminiKey) {
-                throw new Error("Pre spustenie modelov GAMEPLA631 zadaj Groq API kľúč do ľavého panelu.");
+                throw new Error("Pre spustenie modelov GAMEPLA631 zadaj Groq alebo Gemini API kľúč do ľavého panelu.");
             }
 
-            // 1. PRIMÁRNY POHON: GROQ QWEN CODER / QWEN 2.5
-            if (groqKey) {
-                const qwenGroqChain = [
-                    'qwen-2.5-coder-32b',
-                    'qwen-2.5-32b',
-                    'llama-3.3-70b-versatile',
-                    'llama-3.1-8b-instant'
-                ];
+            let groqError = null;
 
-                for (const qModel of qwenGroqChain) {
+            // 1. POKUS CEZ GROQ (Qwen / Llama s dynamickým výberom)
+            if (groqKey) {
+                let groqCandidates = [];
+
+                // Ak máme live zoznam modelov zo servera Groq, použijeme ich
+                if (window.activeGroqModelsList && window.activeGroqModelsList.length > 0) {
+                    const qwenModels = window.activeGroqModelsList.filter(m => m.toLowerCase().includes('qwen'));
+                    const otherModels = window.activeGroqModelsList.filter(m => !m.toLowerCase().includes('qwen'));
+                    groqCandidates = [...qwenModels, ...otherModels];
+                }
+
+                // Fallback zoznam osvedčených modelov
+                if (groqCandidates.length === 0) {
+                    groqCandidates = [
+                        'qwen-2.5-coder-32b',
+                        'qwen-2.5-32b',
+                        'llama-3.3-70b-versatile',
+                        'llama-3.1-8b-instant',
+                        'mixtral-8x7b-32768'
+                    ];
+                }
+
+                for (const modelId of groqCandidates) {
                     try {
-                        const res = await executeGroqRequestWithPrompt(prompt, qModel, GAMEPLA_SYSTEM_PROMPT);
+                        const res = await executeGroqRequestWithPrompt(prompt, modelId, GAMEPLA_SYSTEM_PROMPT);
                         if (res && res.text) return res;
-                    } catch (e) {
-                        console.warn(`Model ${qModel} preskakujem: ${e.message}`);
+                    } catch (err) {
+                        groqError = err;
+                        console.warn(`Groq model ${modelId} zlyhal: ${err.message}`);
                     }
                 }
             }
 
-            // 2. BEZPEČNÝ ZÁLOŽNÝ POKUS CEZ GEMINI (IBA AK GROQ ZLYHAL)
+            // 2. AUTOMATICKÝ ZÁLOŽNÝ POKUS CEZ GEMINI (ak Groq zlyhal alebo chýba)
             if (geminiKey) {
-                const safeGemini = window.activeGeminiFallbackModel || 'gemini-2.0-flash';
-                try {
-                    return await executeGeminiRequestWithPrompt(prompt, safeGemini, enableWeb, GAMEPLA_SYSTEM_PROMPT);
-                } catch (e) {
-                    console.warn(`Záložné volanie Gemini zlyhalo: ${e.message}`);
+                let geminiCandidates = window.activeGeminiModelsList || [];
+                if (geminiCandidates.length === 0) {
+                    geminiCandidates = ['gemini-2.0-flash', 'gemini-2.5-flash', 'gemini-1.5-flash'];
+                }
+
+                for (const gModel of geminiCandidates) {
+                    try {
+                        return await executeGeminiRequestWithPrompt(prompt, gModel, enableWeb, GAMEPLA_SYSTEM_PROMPT);
+                    } catch (gErr) {
+                        console.warn(`Gemini model ${gModel} zlyhal: ${gErr.message}`);
+                    }
                 }
             }
 
-            throw new Error("Qwen engine na Groq neodpovedá. Skontroluj Groq API kľúč.");
+            throw new Error(groqError ? `Groq server vrátil chybu: ${groqError.message}` : "Žiadny AI server neodpovedá. Skontroluj zadané kľúče.");
         }
 
-        // Groq API Request s max_tokens: 8192 pre zabránenie orezaniu kódu
+        // Groq API Request s max_tokens: 8192
         async function executeGroqRequestWithPrompt(prompt, model, customSystemPrompt) {
-            const apiKey = localStorage.getItem('dev_groq_key') || document.getElementById('groqKey').value;
+            const apiKey = localStorage.getItem('dev_groq_key') || document.getElementById('groqKey').value.trim();
             if (!apiKey) throw new Error("Chýba Groq API kľúč!");
 
             const sysPrompt = customSystemPrompt || GAMEPLA_SYSTEM_PROMPT;
@@ -511,8 +539,8 @@ TVOJA IDENTITA A PRAVIDLÁ (STRIKTNÉ):
             });
 
             if (!res.ok) {
-                const errData = await res.json();
-                throw new Error(errData.error?.message || `Chyba Groq ${res.status}`);
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.error?.message || `HTTP ${res.status}: ${res.statusText}`);
             }
             const data = await res.json();
             return { text: data.choices[0].message.content, sources: [] };
@@ -520,7 +548,7 @@ TVOJA IDENTITA A PRAVIDLÁ (STRIKTNÉ):
 
         // Bezpečné Gemini API volanie
         async function executeGeminiRequestWithPrompt(prompt, model, enableWeb, customSystemPrompt) {
-            const apiKey = localStorage.getItem('dev_gemini_key') || document.getElementById('geminiKey').value;
+            const apiKey = localStorage.getItem('dev_gemini_key') || document.getElementById('geminiKey').value.trim();
             if (!apiKey) throw new Error("Chýba Gemini API kľúč!");
 
             const cleanModel = (model || 'gemini-2.0-flash').replace(/^models\//, '');
@@ -558,8 +586,8 @@ TVOJA IDENTITA A PRAVIDLÁ (STRIKTNÉ):
             }
 
             if (!res.ok) {
-                const errData = await res.json();
-                throw new Error(errData.error?.message || `Chyba Gemini ${res.status}`);
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData.error?.message || `HTTP ${res.status}: ${res.statusText}`);
             }
             
             const data = await res.json();
@@ -582,8 +610,8 @@ TVOJA IDENTITA A PRAVIDLÁ (STRIKTNÉ):
             appendMessage('user', `[MODEL DUEL]: ${text}`);
             input.value = '';
 
-            const msgId1 = appendThinkingBlock('gamepla', 'CQL-3.8.Flash (Qwen Core)', true);
-            const msgId2 = appendThinkingBlock('gamepla', 'CQL-3.8 Ultra Coder (Qwen Core)', false);
+            const msgId1 = appendThinkingBlock('gamepla', 'CQL-3.8.Flash (GAMEPLA631)', true);
+            const msgId2 = appendThinkingBlock('gamepla', 'CQL-3.8 Ultra Coder (GAMEPLA631)', false);
 
             callGameplaModel(text, true)
                 .then(res => replaceThinkingWithResponse(msgId1, { text: `### 🎮 CQL-3.8.Flash (GAMEPLA631 Corp.):\n\n${res.text}`, sources: res.sources }))
@@ -613,7 +641,7 @@ TVOJA IDENTITA A PRAVIDLÁ (STRIKTNÉ):
                         <div class="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/80">
                             <div class="flex items-center gap-2">
                                 <span class="w-2 h-2 rounded-full ${isGamepla ? 'bg-gameplaGold' : 'bg-neonCyan'} animate-ping"></span>
-                                <span class="font-mono text-xs font-bold shimmer-text">GAMEPLA631 Qwen Neural Engine Thinking...</span>
+                                <span class="font-mono text-xs font-bold shimmer-text">GAMEPLA631 Neural Engine Thinking...</span>
                             </div>
                             <span class="timer-badge font-mono text-[11px] text-slate-500 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">0.0s</span>
                         </div>
